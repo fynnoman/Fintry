@@ -1,26 +1,340 @@
 @import "tailwindcss";
 
+/* ============================================================
+   FINTRY — Design tokens (Tailwind v4 theme)
+   Palette is fixed. Do not extend without designer sign-off.
+   ============================================================ */
+@theme {
+  --color-bg: #0a0a0a;
+  --color-accent: #6d29cd;
+  --color-accent-soft: #8b5cf6;
+  --color-accent-deep: #4c1d95;
+  --color-headline: #ffffff;
+  --color-body: #888888;
+  --color-hairline: rgba(255, 255, 255, 0.08);
+
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+
+  --radius-panel: 24px;
+  --radius-panel-lg: 28px;
+  --radius-panel-sm: 16px;
+  --radius-pill: 999px;
+
+  --shadow-glass:
+    0 1px 0 0 rgba(255, 255, 255, 0.06) inset,
+    0 -1px 0 0 rgba(255, 255, 255, 0.02) inset,
+    0 30px 60px -30px rgba(0, 0, 0, 0.6),
+    0 20px 40px -20px rgba(109, 41, 205, 0.15);
+
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ============================================================
+   Root canvas
+   ============================================================ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-body);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv11", "cv02";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: white;
+}
+
+/* Focus ring — accessibility */
+:where(a, button, [role="button"], input, select, textarea):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ============================================================
+   Signature type utilities
+   ============================================================ */
+.font-display {
+  font-family: var(--font-display), ui-serif, Georgia, serif;
+  font-feature-settings: "ss01", "kern";
+  letter-spacing: -0.02em;
+}
+
+.text-headline {
+  color: var(--color-headline);
+}
+
+.text-body {
+  color: var(--color-body);
+}
+
+.text-accent {
+  color: var(--color-accent);
+}
+
+/* ============================================================
+   Liquid Glass — the material.
+   Layers: outer border hairline, inner top gloss, backdrop blur+sat,
+   multi-stop shadow. Meant to sit ON TOP of a lively background.
+   ============================================================ */
+.glass {
+  position: relative;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.055) 0%,
+      rgba(255, 255, 255, 0.02) 40%,
+      rgba(255, 255, 255, 0.015) 100%
+    );
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  box-shadow: var(--shadow-glass);
+  border-radius: var(--radius-panel);
+  isolation: isolate;
+}
+
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    140deg,
+    rgba(255, 255, 255, 0.28) 0%,
+    rgba(255, 255, 255, 0.06) 22%,
+    rgba(255, 255, 255, 0.02) 55%,
+    rgba(139, 92, 246, 0.12) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Top-of-panel gloss */
+.glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    120% 60% at 50% -10%,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0) 55%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Heavier variant for hero-adjacent panels */
+.glass-heavy {
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.07) 0%,
+      rgba(255, 255, 255, 0.025) 100%
+    );
+}
+
+/* Cursor-follow radial glow — set --mx/--my from JS as percentages */
+.glass-glow {
+  --mx: 50%;
+  --my: 50%;
+  --glow: 0;
+}
+
+.glass-glow::before {
+  background:
+    linear-gradient(
+      140deg,
+      rgba(255, 255, 255, 0.28) 0%,
+      rgba(255, 255, 255, 0.06) 22%,
+      rgba(255, 255, 255, 0.02) 55%,
+      rgba(139, 92, 246, 0.12) 100%
+    ),
+    radial-gradient(
+      260px 260px at var(--mx) var(--my),
+      rgba(139, 92, 246, calc(0.35 * var(--glow))),
+      transparent 60%
+    );
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn-primary {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 22px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: #fff;
+  background:
+    radial-gradient(120% 200% at 50% -50%, rgba(255, 255, 255, 0.28), transparent 55%),
+    linear-gradient(180deg, #7c33e6 0%, #6d29cd 55%, #5a1fb0 100%);
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.25) inset,
+    0 20px 40px -18px rgba(109, 41, 205, 0.65),
+    0 6px 16px -6px rgba(0, 0, 0, 0.4);
+  transition:
+    transform 0.35s var(--ease-out-quart),
+    box-shadow 0.35s var(--ease-out-quart);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.3) inset,
+    0 24px 48px -18px rgba(109, 41, 205, 0.85),
+    0 8px 20px -6px rgba(0, 0, 0, 0.45);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-pill);
+  backdrop-filter: blur(12px);
+  transition:
+    background 0.3s var(--ease-out-quart),
+    border-color 0.3s var(--ease-out-quart);
+}
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* ============================================================
+   Noise / grain overlay — kills gradient banding
+   ============================================================ */
+.noise::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.9'/></svg>");
+}
+
+/* ============================================================
+   Section divider — mini pulse hairline
+   ============================================================ */
+.divider-pulse {
+  position: relative;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 20%,
+    rgba(139, 92, 246, 0.5) 50%,
+    rgba(255, 255, 255, 0.08) 80%,
+    transparent 100%
+  );
+}
+
+/* ============================================================
+   Animated background blobs — pure CSS, GPU-friendly
+   ============================================================ */
+@keyframes blob-drift-1 {
+  0%, 100% { transform: translate3d(-8%, -6%, 0) scale(1); }
+  50%      { transform: translate3d(6%, 4%, 0) scale(1.08); }
+}
+@keyframes blob-drift-2 {
+  0%, 100% { transform: translate3d(6%, 8%, 0) scale(1.05); }
+  50%      { transform: translate3d(-8%, -4%, 0) scale(0.95); }
+}
+@keyframes blob-drift-3 {
+  0%, 100% { transform: translate3d(0%, 0%, 0) scale(1); }
+  50%      { transform: translate3d(-4%, 6%, 0) scale(1.1); }
+}
+
+.blob {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(90px);
+  will-change: transform;
+}
+
+/* ============================================================
+   Pulse line — the signature element
+   ============================================================ */
+@keyframes pulse-draw {
+  from { stroke-dashoffset: 1400; }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes pulse-breathe {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-3px); }
+}
+
+.pulse-path {
+  stroke-dasharray: 1400;
+  stroke-dashoffset: 1400;
+  animation:
+    pulse-draw 2.4s var(--ease-out-expo) 0.3s forwards,
+    pulse-breathe 4s ease-in-out 3s infinite;
+}
+
+.pulse-glow {
+  filter: drop-shadow(0 0 12px rgba(139, 92, 246, 0.55))
+    drop-shadow(0 0 26px rgba(109, 41, 205, 0.3));
+}
+
+/* ============================================================
+   Reduced motion — respect the user
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .blob {
+    animation: none !important;
+  }
+  .pulse-path {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
 }
